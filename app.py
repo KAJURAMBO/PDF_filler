@@ -31,18 +31,16 @@ if uploaded_file is not None:
     fields = fillpdfs.get_form_fields("uploaded_template.pdf")
     st.write("Form fields in the uploaded PDF:", fields)
     
-    # Input fields for the form
-    user_data = {
-        'Text1': st.text_input("Enter value for Text1:"),
-        'Text2': st.text_input("Enter value for Text2:"),
-        'Text3': st.text_input("Enter value for Text3:"),
-        'Text4': st.text_input("Enter value for Text4:"),
-        'CheckBox1': 'Yes' if st.checkbox("CheckBox1") else 'Off',  # Adjust checkbox value
-        'Signature1': st.text_input("Enter value for Signature1:")
-    }
+    # Input fields for the form based on the actual PDF fields
+    user_data = {}
+    for field_name in fields:
+        if "CheckBox" in field_name:
+            user_data[field_name] = 'Yes' if st.checkbox(f"{field_name}") else 'Off'
+        else:
+            user_data[field_name] = st.text_input(f"Enter value for {field_name}:")
 
     if st.button("Generate PDF"):
-        # Print the data to debug
+        # Debugging - Print the user data dictionary to check field population
         st.write("User data:", user_data)
 
         # Generate PDF and display a success message
@@ -56,6 +54,6 @@ if uploaded_file is not None:
     # Optional: Display the uploaded PDF template (for verification)
     st.subheader("Uploaded PDF Template Preview:")
     st.write("Note: PDF preview may not be available in Streamlit.")
-
+    
 # Clean up: Optionally remove the temporary file after processing
 # os.remove("uploaded_template.pdf")

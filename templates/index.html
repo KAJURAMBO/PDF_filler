@@ -3,30 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Form</title>
+    <title>PDF Form Generator</title>
 </head>
 <body>
-    <h1>Fill the Form</h1>
-    <form action="/submit" method="post">
-        <label for="Text1">Text 1:</label>
-        <input type="text" id="Text1" name="Text1"><br><br>
-        
-        <label for="Text2">Text 2:</label>
-        <input type="text" id="Text2" name="Text2"><br><br>
+    <h1>PDF Form Generator</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="template_pdf">Upload your PDF template:</label>
+        <input type="file" name="template_pdf" accept="application/pdf" required>
+        <br><br>
 
-        <label for="Text3">Text 3:</label>
-        <input type="text" id="Text3" name="Text3"><br><br>
+        <h3>Form Fields</h3>
+        <label for="Text1">Enter value for Text1:</label>
+        <input type="text" name="Text1" required>
+        <br>
 
-        <label for="Text4">Text 4:</label>
-        <input type="text" id="Text4" name="Text4"><br><br>
+        <label for="Text2">Enter value for Text2:</label>
+        <input type="text" name="Text2" required>
+        <br>
 
-        <label for="CheckBox1">Check Box 1:</label>
-        <input type="checkbox" id="CheckBox1" name="CheckBox1"><br><br>
+        <label for="Text3">Enter value for Text3:</label>
+        <input type="text" name="Text3" required>
+        <br>
 
-        <label for="Signature1">Signature:</label>
-        <input type="text" id="Signature1" name="Signature1"><br><br>
+        <label for="Text4">Enter value for Text4:</label>
+        <input type="text" name="Text4" required>
+        <br>
 
-        <input type="submit" value="Submit">
+        <label for="CheckBox1">CheckBox1:</label>
+        <input type="checkbox" name="CheckBox1">
+        <br>
+
+        <label for="Signature1">Enter value for Signature1:</label>
+        <input type="text" name="Signature1" required>
+        <br><br>
+
+        <button type="submit">Generate PDF</button>
     </form>
 </body>
 </html>

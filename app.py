@@ -1,6 +1,5 @@
 import streamlit as st
 from fillpdf import fillpdfs
-import os
 import datetime
 
 # Function to generate the PDF
@@ -10,7 +9,7 @@ def generate_pdf(template_pdf_path, user_data):
     output_filename = f'filled_form_{timestamp}.pdf'
     
     # Create the PDF
-    fillpdfs.write_fillable_pdf(template_pdf_path, output_filename, user_data,flatten=False)
+    fillpdfs.write_fillable_pdf(template_pdf_path, output_filename, user_data)
     fillpdfs.flatten_pdf(output_filename, f'flat_{output_filename}')
     
     return f'flat_{output_filename}'
@@ -31,16 +30,16 @@ if uploaded_file is not None:
     fields = fillpdfs.get_form_fields("uploaded_template.pdf")
     st.write("Form fields in the uploaded PDF:", fields)
     
-    # Input fields for the form based on the actual PDF fields
+    # Input fields for the form
     user_data = {}
-    for field_name in fields:
-        if "CheckBox" in field_name:
-            user_data[field_name] = 'Yes' if st.checkbox(f"{field_name}") else 'Off'
+    for field in fields:
+        if "CheckBox" in field:
+            user_data[field] = st.checkbox(field)
         else:
-            user_data[field_name] = st.text_input(f"Enter value for {field_name}:")
+            user_data[field] = st.text_input(f"Enter value for {field}:")
 
     if st.button("Generate PDF"):
-        # Debugging - Print the user data dictionary to check field population
+        # Print the data to debug
         st.write("User data:", user_data)
 
         # Generate PDF and display a success message
@@ -54,6 +53,6 @@ if uploaded_file is not None:
     # Optional: Display the uploaded PDF template (for verification)
     st.subheader("Uploaded PDF Template Preview:")
     st.write("Note: PDF preview may not be available in Streamlit.")
-    
+
 # Clean up: Optionally remove the temporary file after processing
-# os.remove("uploaded_template.pdf")
+# os.remove("uploaded_template.pdf")  # Uncomment if you want to delete it after processing

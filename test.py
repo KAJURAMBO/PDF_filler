@@ -1,92 +1,61 @@
-import fillpdf
-from fillpdf import fillpdfs
-
-Input_entry=fillpdfs.get_form_fields("template_3.pdf")##without filling
-print(Input_entry)
-# Example input dictionary
-input_entry = {
-    'Text1': '',
-    'Text2': '',
-    'Text3': '',
-    'Text4': '',
-    'CheckBox1': 'Off',
-    'Signature1': ''
-}
-
-# Function to update the dictionary with user input
-def update_entry_with_user_input(input_entry):
-    for key in input_entry.keys():
-        # Simulating user input (you can replace this with actual user input retrieval)
-        user_input = input(f"Enter value for {key}: ")
-        
-        # Update the dictionary value for the corresponding key
-        input_entry[key] = user_input if user_input else input_entry[key]  # Keep old value if input is empty
-
-    return input_entry
-
-# Call the function to update the input_entry dictionary
-updated_entry = update_entry_with_user_input(input_entry)
-
-# Print the updated dictionary
-# print("Updated Entry:", updated_entry)
-
-data_dict = updated_entry
-fillpdfs.write_fillable_pdf('template_3.pdf', 'new.pdf', data_dict)
-fillpdfs.flatten_pdf('new.pdf', 'newflat.pdf')
-
-
-
-
-
-
-
-from flask import Flask, render_template, request, send_from_directory, redirect, url_for
-import fillpdf
+import streamlit as st
 from fillpdf import fillpdfs
 import os
-from datetime import datetime
+import datetime
 
-app = Flask(__name__)
-
-# Directory to save the generated PDFs
-OUTPUT_DIR = 'generated_pdfs'
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# Route for the main form
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-# Route for form submission
-@app.route('/submit', methods=['POST'])
-def submit():
-    user_data = {
-        'Text1': request.form.get('Text1'),
-        'Text2': request.form.get('Text2'),
-        'Text3': request.form.get('Text3'),
-        'Text4': request.form.get('Text4'),
-        'CheckBox1': 'Yes' if request.form.get('CheckBox1') else 'Off',
-        'Signature1': request.form.get('Signature1')
-    }
-
-    # Path to input PDF
-    input_pdf_path = 'template_3.pdf'
+# Function to generate the PDF
+def generate_pdf(template_pdf_path, user_data):
+    # Generate a unique filename
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_filename = f'filled_form_{timestamp}.pdf'
     
-    # Create a unique filename using the current timestamp
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_pdf_path = os.path.join(OUTPUT_DIR, f'filled_pdf_{timestamp}.pdf')
-    flattened_pdf_path = os.path.join(OUTPUT_DIR, f'flattened_pdf_{timestamp}.pdf')
+    # Create the PDF
+    fillpdfs.write_fillable_pdf(template_pdf_path, output_filename, user_data)
+    fillpdfs.flatten_pdf(output_filename, f'flat_{output_filename}')
+    
+    return f'flat_{output_filename}'
 
-    # Write and flatten the PDF
-    fillpdfs.write_fillable_pdf(input_pdf_path, output_pdf_path, user_data, flatten=False)
-    fillpdfs.flatten_pdf(output_pdf_path, flattened_pdf_path)
+# Streamlit UI
+st.title("PDF Form Generator")
 
-    return redirect(url_for('download_file', filename=f'flattened_pdf_{timestamp}.pdf'))
+# File uploader for the PDF template
+uploaded_file = st.file_uploader("Upload your PDF template", type="pdf")
 
-# Route for downloading the generated PDF
-@app.route('/download/<filename>')
-def download_file(filename):
-    return send_from_directory(OUTPUT_DIR, filename, as_attachment=True)
+# Only show the form if a file has been uploaded
+if uploaded_file is not None:
+    # Save the uploaded file temporarily
+    with open("uploaded_template.pdf", "wb") as f:
+        f.write(uploaded_file.read())
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Display the uploaded PDF template field names
+    fields = fillpdfs.get_form_fields("uploaded_template.pdf")
+    st.write("Form fields in the uploaded PDF:", fields)
+    
+    # Initialize user_data dictionary with default values
+    user_data = {field: "" for field in fields}
+
+    # Input fields for the form based on the actual PDF fields
+    for field_name in fields:
+        if "CheckBox" in field_name:
+            user_data[field_name] = 'Yes' if st.checkbox(field_name) else 'Off'
+        else:
+            user_data[field_name] = st.text_input(f"Enter value for {field_name}:", "")
+
+    if st.button("Generate PDF"):
+        # Print the user data for debugging
+        st.write("User data:", user_data)
+
+        # Generate PDF and display a success message
+        pdf_file = generate_pdf("uploaded_template.pdf", user_data)
+        st.success("PDF has been generated successfully!")
+        
+        # Provide a download link for the generated PDF
+        with open(pdf_file, "rb") as f:
+            st.download_button("Download PDF", f, file_name=pdf_file)
+
+    # Optional: Display the uploaded PDF template (for verification)
+    st.subheader("Uploaded PDF Template Preview:")
+    st.write("Note: PDF preview may not be available in Streamlit.")
+
+# Clean up: Optionally remove the temporary file after processing
+# os.remove("uploaded_template.pdf")

@@ -10,7 +10,7 @@ def generate_pdf(template_pdf_path, user_data):
     output_filename = f'filled_form_{timestamp}.pdf'
     
     # Create the PDF
-    fillpdfs.write_fillable_pdf(template_pdf_path, output_filename, user_data)
+    fillpdfs.write_fillable_pdf(template_pdf_path, output_filename, user_data,flatten=False)
     fillpdfs.flatten_pdf(output_filename, f'flat_{output_filename}')
     
     return f'flat_{output_filename}'

@@ -54,4 +54,4 @@ if uploaded_file is not None:
     st.write("Note: PDF preview may not be available in Streamlit.")
 
 # Clean up: Remove the temporary file after generating the PDF if desired
-os.remove("uploaded_template.pdf")  # Uncomment if you want to delete it after processing
+# os.remove("uploaded_template.pdf")  # Uncomment if you want to delete it after processing

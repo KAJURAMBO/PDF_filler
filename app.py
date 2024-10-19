@@ -32,12 +32,14 @@ if uploaded_file is not None:
     
     # Input fields for the form
     user_data = {}
+    
+    # Loop through the fields to create appropriate input fields
     for field in fields:
         if "CheckBox" in field:
             user_data[field] = 'Yes' if st.checkbox(field) else 'Off'  # Adjust checkbox value
         else:
             user_data[field] = st.text_input(f"Enter value for {field}:")
-
+    
     if st.button("Generate PDF"):
         # Debugging: Print the user data to see if it's being populated
         st.write("User data:", user_data)
